@@ -17,5 +17,6 @@ Including another URLconf
 from django.urls import re_path, include
 
 urlpatterns = [
+    re_path(r'^', include('Apps.Billing.meter.urls')),
     re_path(r'^', include('Apps.Authen.urls')),
 ]
