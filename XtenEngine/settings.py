@@ -84,7 +84,7 @@ DATABASES = {
     }
 }
 
-CONNECTION = "postgres://adminXten:xten1234@localhost:5432/xtenv1"
+CONNECTION = "postgres://adminXten:xten1234@localhost:5432/test"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

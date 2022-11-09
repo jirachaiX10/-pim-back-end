@@ -1,36 +1,27 @@
 import psycopg2
 import requests
 from XtenEngine.common_util import ResponseMessage
-from Apps.Authen.credentials import AuthenticateCredentials
+from XtenEngine.settings import CONNECTION, SECRET_KEY
 
 
 class MeterService:
     def __init__(self, **kwargs):
         self.requests = requests
         self.token = kwargs.get('token', '')
-        self.user_info = AuthenticateCredentials(self.token)
-        self.connection = self.user_info['connection']
 
     def getDataMeter(self):
         response_return = ResponseMessage()
         try:
-            conn = psycopg2.connect(self.connection)
+            conn = psycopg2.connect(CONNECTION)
             cursor = conn.cursor()
             cursor.execute("select * from information_schema.tables where table_name=%s", ('meter',))
+            query = """SELECT * FROM meter;"""
             if bool(cursor.rowcount):
-                query = """SELECT tt.sensor_id, time, kwh, tap , vab, vbc, vca, freq FROM public.meter tt 
+                query = """SELECT * FROM public.meter tt 
                             INNER JOIN (SELECT sensor_id, MAX(time) AS MaxDateTime 
                             FROM public.meter GROUP BY sensor_id) groupedtt ON tt.sensor_id = groupedtt.sensor_id 
-                            AND tt.time = groupedtt.MaxDateTime
-                            union 
-                            SELECT tb.sensor_id, time, kwh, tap , vab, vbc, vca, freq FROM public.mdb tb 
-                            INNER JOIN (SELECT sensor_id, MAX(time) AS MaxDateTime 
-                            FROM public.mdb GROUP BY sensor_id) groupedtt ON tb.sensor_id = groupedtt.sensor_id 
-                            AND tb.time = groupedtt.MaxDateTime"""
-            else:
-                query = """SELECT tt.* FROM public.mdb tt INNER JOIN (SELECT sensor_id, MAX(time) AS MaxDateTime 
-                        FROM public.mdb GROUP BY sensor_id) groupedtt ON tt.sensor_id = groupedtt.sensor_id 
-                        AND tt.time = groupedtt.MaxDateTime"""
+                            AND tt.time = groupedtt.MaxDateTime"""
+
             cursor.execute(query)
             records = cursor.fetchall()
             selectObject = []
